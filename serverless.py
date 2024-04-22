@@ -54,7 +54,7 @@ def register_yourself():
 
         def save_to_register():
             employee_response = cog.sign_up(
-                ClientId='16aojtq6q5beh7ptto9rlhiir0',
+                ClientId='$$$$$',
                 Username=e2_username.get(),
                 Password=e2_password.get(),
                 UserAttributes=[
@@ -99,7 +99,7 @@ def register_yourself():
 
         def save_to_register():
             customer_response = cog.sign_up(
-                ClientId='5kv7v304h4ao62rf7h1euo71bv',
+                ClientId='$$$$$',
                 Username=e2_username.get(),
                 Password=e2_password.get(),
                 UserAttributes=[
