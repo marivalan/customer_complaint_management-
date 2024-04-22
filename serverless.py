@@ -1,4 +1,7 @@
 import tkinter as tk
+import boto3
+
+cog = boto3.client('cognito-idp', region_name='ap-south-1')
 
 root = tk.Tk()
 root.title("customer_compliant_management")
@@ -22,52 +25,103 @@ e1_userpool.grid(column=1, row=3)
 
 
 def register_yourself():
-    #creating a new window and entries, lables
-    reg = tk.Tk()
-    reg.title("Register")
-    reg.geometry("450x435")
+    var1 = Checkbutton1_a.get()
+    var2 = Checkbutton1_b.get()
 
-    l2_username = tk.Label(reg, text="User Name")
-    l2_username.grid(column=0, row=1)
-    l2_mailid = tk.Label(reg, text="Mail id")
-    l2_mailid.grid(column=0, row=2)
-    l2_mobile = tk.Label(reg, text="Mobile number")
-    l2_mobile.grid(column=0, row=3)
-    l2_password = tk.Label(reg, text="Password")
-    l2_password.grid(column=0, row=4)
+    if var1 == 1 and var2 == 0:
+        # creating a new window and entries, lables
+        reg = tk.Tk()
+        reg.title("Register")
+        reg.geometry("450x435")
 
-    e2_username = tk.Entry(reg, width=35)
-    e2_username.grid(column=1, row=1)
-    e2_mailid = tk.Entry(reg, width=35)
-    e2_mailid.grid(column=1, row=2)
-    e2_mobile = tk.Entry(reg, width=35)
-    e2_mobile.grid(column=1, row=3)
-    e2_password = tk.Entry(reg, width=35)
-    e2_password.grid(column=1, row=4)
+        l2_username = tk.Label(reg, text="User Name")
+        l2_username.grid(column=0, row=1)
+        l2_mailid = tk.Label(reg, text="Mail id")
+        l2_mailid.grid(column=0, row=2)
+        l2_mobile = tk.Label(reg, text="Mobile number")
+        l2_mobile.grid(column=0, row=3)
+        l2_password = tk.Label(reg, text="Password")
+        l2_password.grid(column=0, row=4)
 
-    def save_to_register():
-        return
+        e2_username = tk.Entry(reg, width=35)
+        e2_username.grid(column=1, row=1)
+        e2_mailid = tk.Entry(reg, width=35)
+        e2_mailid.grid(column=1, row=2)
+        e2_mobile = tk.Entry(reg, width=35)
+        e2_mobile.grid(column=1, row=3)
+        e2_password = tk.Entry(reg, width=35)
+        e2_password.grid(column=1, row=4)
 
-    global Checkbutton1
-    global Checkbutton2
-
-    Checkbutton1 = tk.IntVar()
-    b2_employee = tk.Checkbutton(reg, text="Employee", variable=Checkbutton1)
-    b2_employee.grid(column=0,  row=6)
-
-    Checkbutton2 = tk.IntVar()
-    b2_customer = tk.Checkbutton(reg, text="Customer", variable=Checkbutton2)
-    b2_customer.grid(column=1, row=6)
-
-    b2_register = tk.Button(reg, text="Save to register", command=save_to_register)
-    b2_register.grid(column=0, row=7, columnspan=2)
-
-    return
+        def save_to_register():
+            employee_response = cog.sign_up(
+                ClientId='16aojtq6q5beh7ptto9rlhiir0',
+                Username=e2_username.get(),
+                Password=e2_password.get(),
+                UserAttributes=[
+                    {
+                        'Name': 'email',
+                        'Value': e2_mailid.get()
+                    }
+                ]
+            )
+            return employee_response
 
 
+
+        b2_register = tk.Button(reg, text="Save to register", command=save_to_register)
+        b2_register.grid(column=0, row=7, columnspan=2)
+
+        reg.mainloop()
+
+    elif var1 == 0 and var2 == 1:
+        # creating a new window and entries, lables
+        reg = tk.Tk()
+        reg.title("Register")
+        reg.geometry("450x435")
+
+        l2_username = tk.Label(reg, text="User Name")
+        l2_username.grid(column=0, row=1)
+        l2_mailid = tk.Label(reg, text="Mail id")
+        l2_mailid.grid(column=0, row=2)
+        l2_mobile = tk.Label(reg, text="Mobile number")
+        l2_mobile.grid(column=0, row=3)
+        l2_password = tk.Label(reg, text="Password")
+        l2_password.grid(column=0, row=4)
+
+        e2_username = tk.Entry(reg, width=35)
+        e2_username.grid(column=1, row=1)
+        e2_mailid = tk.Entry(reg, width=35)
+        e2_mailid.grid(column=1, row=2)
+        e2_mobile = tk.Entry(reg, width=35)
+        e2_mobile.grid(column=1, row=3)
+        e2_password = tk.Entry(reg, width=35)
+        e2_password.grid(column=1, row=4)
+
+        def save_to_register():
+            customer_response = cog.sign_up(
+                ClientId='5kv7v304h4ao62rf7h1euo71bv',
+                Username=e2_username.get(),
+                Password=e2_password.get(),
+                UserAttributes=[
+                    {
+                        'Name': 'email',
+                        'Value': e2_mailid.get()
+                    }
+                ]
+            )
+            return customer_response
+
+
+        b2_register = tk.Button(reg, text="Save to register", command=save_to_register)
+        b2_register.grid(column=0, row=7, columnspan=2)
+
+        reg.mainloop()
+    else:
+        warning_label = tk.Label(root, text="Select one of the above category")
+        warning_label.grid(column=0, row=7, columnspan=2)
 def signin():
-    var1 = Checkbutton1.get()
-    var2 = Checkbutton2.get()
+    var1 = Checkbutton1_a.get()
+    var2 = Checkbutton1_b.get()
 
     if var1 == 1 and var2 == 0:
 
@@ -168,12 +222,15 @@ def signin():
 
 
 #creating buttons on window_1
-Checkbutton1 = tk.IntVar()
-b1_employee = tk.Checkbutton(text="Employee", variable=Checkbutton1)
+global Checkbutton1_a
+global Checkbutton1_b
+
+Checkbutton1_a = tk.IntVar()
+b1_employee = tk.Checkbutton(text="Employee", variable=Checkbutton1_a)
 b1_employee.grid(column=0,  row=4)
 
-Checkbutton2 = tk.IntVar()
-b1_Customer = tk.Checkbutton(text="Customer", variable=Checkbutton2)
+Checkbutton1_b = tk.IntVar()
+b1_Customer = tk.Checkbutton(text="Customer", variable=Checkbutton1_b)
 b1_Customer.grid(column=1, row=4)
 
 b1_register = tk.Button(text="Register yourself", command=register_yourself)
