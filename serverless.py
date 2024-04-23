@@ -42,6 +42,9 @@ def register_yourself():
         l2_mobile.grid(column=0, row=3)
         l2_password = tk.Label(reg, text="Password")
         l2_password.grid(column=0, row=4)
+        l2_otp = tk.Label(reg, text="OTP")
+        l2_otp.grid(column=0, row=8)
+
 
         e2_username = tk.Entry(reg, width=35)
         e2_username.grid(column=1, row=1)
@@ -51,25 +54,56 @@ def register_yourself():
         e2_mobile.grid(column=1, row=3)
         e2_password = tk.Entry(reg, width=35)
         e2_password.grid(column=1, row=4)
+        e2_otp = tk.Entry(reg, width=35)
+        e2_otp.grid(column=1, row=8)
 
+        employee_pool_Client_ID = '16aojtq6q5beh7ptto9rlhiir0'
         def save_to_register():
-            employee_response = cog.sign_up(
-                ClientId='$$$$$',
-                Username=e2_username.get(),
-                Password=e2_password.get(),
-                UserAttributes=[
-                    {
-                        'Name': 'email',
-                        'Value': e2_mailid.get()
-                    }
-                ]
-            )
-            return employee_response
+            try:
+                employee_response = cog.sign_up(
+                    ClientId=employee_pool_Client_ID,
+                    Username=e2_username.get(),
+                    Password=e2_password.get(),
+                    UserAttributes=[
+                        {
+                            'Name': 'email',
+                            'Value': e2_mailid.get()
+                        }
+                    ]
+                )
+                return employee_response
+            except Exception as e:
+                print('error:', e)
+                return None
+            finally:
+                data = employee_response['UserConfirmed']
+                if data == False:
+                    l_confirmation = tk.Label(reg, text='Awaiting confirmation')
+                    l_confirmation.grid(column=1, row=10)
+                elif data not in employee_response:
+                    l_confirmation = tk.Label(reg, text='Invalid input')
+                    l_confirmation.grid(column=1, row=10)
+                else:
+                    l_confirmation = tk.Label(reg, text='Sign up failed')
+                    l_confirmation.grid(column=1, row=10)
 
 
+        def confirm():
+            try:
+                response = cog.confirm_sign_up(
+                    ClientId=employee_pool_Client_ID,
+                    Username=e2_username.get(),
+                    ConfirmationCode=e2_otp.get(),
+                )
+                return response
+            except Exception as e:
+                print('error:', e)
+                return None
 
         b2_register = tk.Button(reg, text="Save to register", command=save_to_register)
         b2_register.grid(column=0, row=7, columnspan=2)
+        b2_confirm = tk.Button(reg, text="Confirm user", command=confirm)
+        b2_confirm.grid(column=0, row=9, columnspan=2)
 
         reg.mainloop()
 
@@ -87,6 +121,8 @@ def register_yourself():
         l2_mobile.grid(column=0, row=3)
         l2_password = tk.Label(reg, text="Password")
         l2_password.grid(column=0, row=4)
+        l2_otp = tk.Label(reg, text="OTP")
+        l2_otp.grid(column=0, row=8)
 
         e2_username = tk.Entry(reg, width=35)
         e2_username.grid(column=1, row=1)
@@ -96,24 +132,46 @@ def register_yourself():
         e2_mobile.grid(column=1, row=3)
         e2_password = tk.Entry(reg, width=35)
         e2_password.grid(column=1, row=4)
+        e2_otp = tk.Entry(reg, width=35)
+        e2_otp.grid(column=1, row=8)
+
+        customer_pool_Client_ID = '5kv7v304h4ao62rf7h1euo71bv'
 
         def save_to_register():
-            customer_response = cog.sign_up(
-                ClientId='$$$$$',
+            try:
+                customer_response = cog.sign_up(
+                    ClientId=customer_pool_Client_ID,
+                    Username=e2_username.get(),
+                    Password=e2_password.get(),
+                    UserAttributes=[
+                        {
+                            'Name': 'email',
+                            'Value': e2_mailid.get()
+                        }
+                    ]
+                )
+                print(customer_response)
+                return
+            except Exception as e:
+                print(e)
+                return None
+            finally:
+                print(customer_response)
+                return
+
+        def confirm():
+            response = cog.confirm_sign_up(
+                ClientId=customer_pool_Client_ID,
                 Username=e2_username.get(),
-                Password=e2_password.get(),
-                UserAttributes=[
-                    {
-                        'Name': 'email',
-                        'Value': e2_mailid.get()
-                    }
-                ]
+                ConfirmationCode=e2_otp.get(),
             )
-            return customer_response
+            return response
 
 
         b2_register = tk.Button(reg, text="Save to register", command=save_to_register)
         b2_register.grid(column=0, row=7, columnspan=2)
+        b2_confirm = tk.Button(reg, text="Confirm user", command=confirm)
+        b2_confirm.grid(column=0, row=9, columnspan=2)
 
         reg.mainloop()
     else:
