@@ -73,20 +73,12 @@ def register_yourself():
                 )
                 return employee_response
             except Exception as e:
-                print('error:', e)
+                l_confirmation = tk.Label(reg, text='Signup failed')
+                l_confirmation.grid(column=1, row=10)
                 return None
             finally:
-                data = employee_response['UserConfirmed']
-                if data == False:
-                    l_confirmation = tk.Label(reg, text='Awaiting confirmation')
-                    l_confirmation.grid(column=1, row=10)
-                elif data not in employee_response:
-                    l_confirmation = tk.Label(reg, text='Invalid input')
-                    l_confirmation.grid(column=1, row=10)
-                else:
-                    l_confirmation = tk.Label(reg, text='Sign up failed')
-                    l_confirmation.grid(column=1, row=10)
-
+                l_confirmation = tk.Label(reg, text='Awaiting confirmation')
+                l_confirmation.grid(column=1, row=10)
 
         def confirm():
             try:
