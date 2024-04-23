@@ -89,8 +89,12 @@ def register_yourself():
                 )
                 return response
             except Exception as e:
-                print('error:', e)
+                l_confirmation = tk.Label(reg, text='Confirmation failed')
+                l_confirmation.grid(column=1, row=11)
                 return None
+            finally:
+                l_confirmation = tk.Label(reg, text='Confirmed')
+                l_confirmation.grid(column=1, row=11)
 
         b2_register = tk.Button(reg, text="Save to register", command=save_to_register)
         b2_register.grid(column=0, row=7, columnspan=2)
@@ -145,19 +149,28 @@ def register_yourself():
                 print(customer_response)
                 return
             except Exception as e:
-                print(e)
+                l_confirmation = tk.Label(reg, text='Signup failed')
+                l_confirmation.grid(column=1, row=10)
                 return None
             finally:
-                print(customer_response)
-                return
+                l_confirmation = tk.Label(reg, text='Awaiting confirmation')
+                l_confirmation.grid(column=1, row=10)
 
         def confirm():
-            response = cog.confirm_sign_up(
+            try:
+                response = cog.confirm_sign_up(
                 ClientId=customer_pool_Client_ID,
                 Username=e2_username.get(),
                 ConfirmationCode=e2_otp.get(),
-            )
-            return response
+                )
+                return response
+            except Exception as e:
+                l_confirmation = tk.Label(reg, text='Confirmation failed')
+                l_confirmation.grid(column=1, row=11)
+                return None
+            finally:
+                l_confirmation = tk.Label(reg, text='Confirmed')
+                l_confirmation.grid(column=1, row=11)
 
 
         b2_register = tk.Button(reg, text="Save to register", command=save_to_register)
