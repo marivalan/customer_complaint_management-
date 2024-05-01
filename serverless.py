@@ -27,17 +27,18 @@ customer_pool_Client_ID = '5kv7v304h4ao62rf7h1euo71bv'
 
 post_url_c = 'https://d0el873e53.execute-api.ap-south-1.amazonaws.com/CCM/'
 put_url_c = 'https://d0el873e53.execute-api.ap-south-1.amazonaws.com/CCM/update'
-get_url_c= 'https://d0el873e53.execute-api.ap-south-1.amazonaws.com/CCM/'
+get_url_c = 'https://d0el873e53.execute-api.ap-south-1.amazonaws.com/CCM/'
 
 post_url_e = 'https://zbn890lj60.execute-api.ap-south-1.amazonaws.com/CCM-E/CCM-E'
 put_url_e = 'https://zbn890lj60.execute-api.ap-south-1.amazonaws.com/CCM-E/CCM-E/update'
-get_url_e= 'https://zbn890lj60.execute-api.ap-south-1.amazonaws.com/CCM-E/CCM-E/'
+get_url_e = 'https://zbn890lj60.execute-api.ap-south-1.amazonaws.com/CCM-E/CCM-E/'
+
 
 def signup():
     var1 = Checkbutton1_a.get()
     var2 = Checkbutton1_b.get()
 
-    if var1 == 1 and var2 == 0:                                 #employee signup
+    if var1 == 1 and var2 == 0:  #employee signup
         # creating a new window and entries, lables
         reg = tk.Tk()
         reg.title("Register")
@@ -102,7 +103,7 @@ def signup():
                 l_confirmation = tk.Label(reg, text='Confirmed')
                 l_confirmation.grid(column=1, row=11)
             finally:
-                return
+                pass
 
         b2_register = tk.Button(reg, text="Save to register", command=save_to_register)
         b2_register.grid(column=0, row=7, columnspan=2)
@@ -111,7 +112,7 @@ def signup():
 
         reg.mainloop()
 
-    elif var1 == 0 and var2 == 1:                                            #customer signup
+    elif var1 == 0 and var2 == 1:  #customer signup
         # creating a new window and entries, lables
         reg = tk.Tk()
         reg.title("Register")
@@ -175,26 +176,41 @@ def signup():
                 l_confirmation = tk.Label(reg, text='Confirmed')
                 l_confirmation.grid(column=1, row=11)
             finally:
-                clientid_c = customer_pool_Client_ID
-                authparameters_c = {
-                    'USERNAME': e2_username.get(),
-                    'PASSWORD': e2_password.get()
-                }
-                response = cog.initiate_auth(                   # calling sign_in method
-                    AuthFlow="USER_PASSWORD_AUTH",
-                    AuthParameters=authparameters_c,
-                    ClientId=clientid_c
-                )
-                print(response)
-                Token = response
-                text = {"userid": e2_username.get(),
-                        "mailid": e2_mailid.get()
-                        }
-                id_token = str(Token['AuthenticationResult']['IdToken'])
-                body = requests.post(post_url_c, json=text,
-                                     headers={'Authorization': f'Bearer {id_token}',
-                                              'Content-Type': 'application/json'})
-                return body
+                def signin():
+                    clientid_c = customer_pool_Client_ID
+                    authparameters_c = {
+                        'USERNAME': e2_username.get(),
+                        'PASSWORD': e2_password.get()
+                    }
+                    global cred
+                    cred = cog.initiate_auth(  # calling sign_in method
+                        AuthFlow="USER_PASSWORD_AUTH",
+                        AuthParameters=authparameters_c,
+                        ClientId=clientid_c
+                    )
+                    return cred
+
+                def store_user_data():
+                    text = {"userid": e2_username.get(),
+                            "mailid": e2_mailid.get()
+                            }
+                    id_token = str(Token['AuthenticationResult']['IdToken'])
+                    body = requests.post(post_url_c, json=text,
+                                         headers={'Authorization': f'Bearer {id_token}',
+                                                  'Content-Type': 'application/json'})
+                    return body
+
+                def signout():
+                    accesstoken = str(Token['AuthenticationResult']['AccessToken'])
+                    out = cog.global_sign_out(
+                        AccessToken=accesstoken
+                    )
+                    return out
+
+                signin()
+                Token = cred
+                store_user_data()
+                signout()
 
         b2_register = tk.Button(reg, text="Save to register", command=save_to_register)
         b2_register.grid(column=0, row=7, columnspan=2)
@@ -205,8 +221,10 @@ def signup():
     else:
         warning_label = tk.Label(root, text="Select one of the above category")
         warning_label.grid(column=0, row=7, columnspan=2)
+
+
 def signin():
-    def initiate_signin(authflow, clientid, authparameters):                      #sign_in method
+    def initiate_signin(authflow, clientid, authparameters):  #sign_in method
         response = cog.initiate_auth(
             AuthFlow=authflow,
             AuthParameters=authparameters,
@@ -222,78 +240,101 @@ def signin():
     var1 = Checkbutton1_a.get()
     var2 = Checkbutton1_b.get()
 
-    if var1 == 1 and var2 == 0:                                                  #employee signin authflow
-        authflow_e= 'USER_PASSWORD_AUTH'
-        clientid_e= employee_pool_Client_ID
-        authparameters_e= {
-            'USERNAME':e1_username.get(),
-            'PASSWORD':e1_password.get()
-        }
-        initiate_signin(authflow_e, clientid_e, authparameters_e)           # calling initiate_sign in fn
+    if var1 == 1 and var2 == 0:  #employee signin authflow
+        try:
+            authflow_e = 'USER_PASSWORD_AUTH'
+            clientid_e = employee_pool_Client_ID
+            authparameters_e = {
+                'USERNAME': e1_username.get(),
+                'PASSWORD': e1_password.get()
+            }
+            initiate_signin(authflow_e, clientid_e, authparameters_e)  # calling initiate_sign in fn
+        except Exception:
+            l_feedback = tk.Label(root, text="Incorrect username or Password")
+            l_feedback.grid(column=0, row=6, columnspan=2)
+        else:
+            # creating an employee signin page
+            sign = tk.Tk()
+            sign.title("Sign In")
+            sign.geometry("450x435")
 
+            l_sign_customer = tk.Label(sign, text="Customer Name")
+            l_sign_customer.grid(column=0, row=1)
+            l_sign_mailid = tk.Label(sign, text="Mail id")
+            l_sign_mailid.grid(column=0, row=2)
+            l_sign_product = tk.Label(sign, text="Product")
+            l_sign_product.grid(column=0, row=3)
+            l_sign_complaint = tk.Label(sign, text="Complaint")
+            l_sign_complaint.grid(column=0, row=4)
+            l_sign_response = tk.Label(sign, text="Response")
+            l_sign_response.grid(column=0, row=5)
 
-        #creating an employee signin page
-        sign = tk.Tk()
-        sign.title("Sign In")
-        sign.geometry("450x435")
+            e_sign_customer = tk.Entry(sign, width=35)
+            e_sign_customer.grid(column=1, row=1)
+            e_sign_mailid = tk.Entry(sign, width=35)
+            e_sign_mailid.grid(column=1, row=2)
+            e_sign_product = tk.Entry(sign, width=35)
+            e_sign_product.grid(column=1, row=3)
 
-        l_sign_customer = tk.Label(sign, text="Customer Name")
-        l_sign_customer.grid(column=0, row=1)
-        l_sign_mailid = tk.Label(sign, text="Mail id")
-        l_sign_mailid.grid(column=0, row=2)
-        l_sign_product = tk.Label(sign, text="Product")
-        l_sign_product.grid(column=0, row=3)
-        l_sign_complaint = tk.Label(sign, text="Complaint")
-        l_sign_complaint.grid(column=0, row=4)
-        l_sign_response = tk.Label(sign, text="Response")
-        l_sign_response.grid(column=0, row=5)
+            t_sign_complaint = tk.Text(sign, height=10, width=26)
+            t_sign_complaint.grid(column=1, row=4)
+            t_sign_response = tk.Text(sign, height=5, width=26)
+            t_sign_response.grid(column=1, row=5)
 
-        e_sign_customer = tk.Entry(sign, width=35)
-        e_sign_customer.grid(column=1, row=1)
-        e_sign_mailid = tk.Entry(sign, width=35)
-        e_sign_mailid.grid(column=1, row=2)
-        e_sign_product = tk.Entry(sign, width=35)
-        e_sign_product.grid(column=1, row=3)
+            def signout():  # defining functions for buttons in signin page
+                accesstoken = str(Tokens['AuthenticationResult']['AccessToken'])
+                response = cog.global_sign_out(
+                    AccessToken=accesstoken
+                )
+                print(response)
+                return response
 
-        t_sign_complaint = tk.Text(sign, height=10, width=26)
-        t_sign_complaint.grid(column=1, row=4)
-        t_sign_response = tk.Text(sign, height=5, width=26)
-        t_sign_response.grid(column=1, row=5)
+            def send():  # defining functions for buttons in signin page
+                try:
+                    this = t_sign_response.get("1.0", "end-1c")
+                    text = {"userid": e_sign_customer.get(),
+                            "reply": this
+                            }
+                    body = requests.put(put_url_e, json=text,
+                                        headers={'Authorization': f'Bearer {id_token}',
+                                                 'Content-Type': 'application/json'})
+                    print(body)
+                finally:
+                    t_sign_response.delete('1.0', tk.END)
+                    t_sign_response.insert('1.0', 'Response sent')
+                    pass
+                return
 
-        def signout():              # defining functions for buttons in signin page
-            accesstoken = str(Tokens['AuthenticationResult']['AccessToken'])
-            response = cog.global_sign_out(
-                AccessToken=accesstoken
-            )
-            print(response)
-            return response
+            def show():  # defining response retrieval for employee
+                try:
+                    t_sign_complaint.delete('1.0', tk.END)
+                    t_sign_response.delete('1.0', tk.END)
+                    e_sign_product.delete(0, tk.END)
+                    e_sign_mailid.delete(0, tk.END)
 
-        def send():                 # defining functions for buttons in signin page
-            this = t_sign_response.get("1.0", "end-1c")
-            text = {"userid": e_sign_customer.get(),
-                    "reply": this
-                    }
-            body = requests.put(put_url_e, json=text,
-                                headers={'Authorization': f'Bearer {id_token}', 'Content-Type': 'application/json'})
-            return body
+                    params = {"userid": e_sign_customer.get()}
+                    id_token = str(Tokens['AuthenticationResult']['IdToken'])
+                    url = get_url_e + "single"
+                    body = requests.get(url, params=params,
+                                        headers={'Authorization': f'Bearer {id_token}',
+                                                 'Content-Type': 'application/json'})
+                    print(body)
+                    print(body.json())
+                    content = body.json()['Item']['complaint']
+                    pro = body.json()['Item']['product']
+                    mail = body.json()['Item']['mailid']
+                    e_sign_product.insert("0", pro)
+                    e_sign_mailid.insert("0", mail)
+                    if content is None:
+                        t_sign_complaint.insert('1.0', 'No complaint')
+                    else:
+                        t_sign_complaint.insert('1.0', content)
+                        pass
+                except Exception:
+                    feedback_label = tk.Label(sign, text="Could not fetch data")
+                    feedback_label.grid(column=0, row=9, columnspan=2)
+                return
 
-        def show():                                                  #defining response retrieval for employee
-                params = {"userid": e_sign_customer.get()}
-                id_token = str(Tokens['AuthenticationResult']['IdToken'])
-                url = get_url_e + "single"
-                body = requests.get(url, params=params,
-                                    headers={'Authorization': f'Bearer {id_token}', 'Content-Type': 'application/json'})
-                print(body)
-                print(body.json())
-                content = body.json()['Item']['complaint']
-                pro = body.json()['Item']['product']
-                mail = body.json()['Item']['mailid']
-                e_sign_product.insert('1.0', pro)
-                e_sign_mailid.insert('1.0', mail)
-                if content == None:
-                    t_sign_complaint.insert('1.0', 'No complaint')
-                else:
-                    t_sign_complaint.insert('1.0', content)
 
         b_sign_show = tk.Button(sign, text="Show", command=show)
         b_sign_show.grid(column=2, row=1)
@@ -304,53 +345,66 @@ def signin():
 
         sign.mainloop()
 
-    elif var1 == 0 and var2 == 1:            #customer signin authflow
-        authflow_c = 'USER_PASSWORD_AUTH'
-        clientid_c = customer_pool_Client_ID
-        authparameters_c = {
-            'USERNAME': e1_username.get(),
-            'PASSWORD': e1_password.get()
-        }
-        initiate_signin(authflow_c, clientid_c, authparameters_c)    # calling initiate_sign in fn
+    elif var1 == 0 and var2 == 1:  #customer signin authflow
+        try:
+            authflow_c = 'USER_PASSWORD_AUTH'
+            clientid_c = customer_pool_Client_ID
+            authparameters_c = {
+                'USERNAME': e1_username.get(),
+                'PASSWORD': e1_password.get()
+            }
+            initiate_signin(authflow_c, clientid_c, authparameters_c)  # calling initiate_sign in fn
+        except Exception:
+            l_feedback = tk.Label(root, text="Incorrect username or Password")
+            l_feedback.grid(column=0, row=6, columnspan=2)
+        else:
+            # creating a customer signin page
+            sign = tk.Tk()
+            sign.title("Sign In")
+            sign.geometry("450x435")
 
-        # creating a customer signin page
-        sign = tk.Tk()
-        sign.title("Sign In")
-        sign.geometry("450x435")
+            l_sign_product = tk.Label(sign, text="Product")
+            l_sign_product.grid(column=0, row=1)
+            l_sign_complaint = tk.Label(sign, text="Complaint")
+            l_sign_complaint.grid(column=0, row=2)
+            l_sign_response = tk.Label(sign, text="Response")
+            l_sign_response.grid(column=0, row=3)
 
-        l_sign_product = tk.Label(sign, text="Product")
-        l_sign_product.grid(column=0, row=1)
-        l_sign_complaint = tk.Label(sign, text="Complaint")
-        l_sign_complaint.grid(column=0, row=2)
-        l_sign_response = tk.Label(sign, text="Response")
-        l_sign_response.grid(column=0, row=3)
+            e_sign_product = tk.Entry(sign, width=35)
+            e_sign_product.grid(column=1, row=1)
+            t_sign_complaint = tk.Text(sign, height=10, width=26)
+            t_sign_complaint.grid(column=1, row=2)
+            t_sign_response = tk.Text(sign, height=5, width=26)
+            t_sign_response.grid(column=1, row=3)
 
-        e_sign_product = tk.Entry(sign, width=35)
-        e_sign_product.grid(column=1, row=1)
-        t_sign_complaint = tk.Text(sign, height=10, width=26)
-        t_sign_complaint.grid(column=1, row=2)
-        t_sign_response = tk.Text(sign, height=5, width=26)
-        t_sign_response.grid(column=1, row=3)
+            def signout():  # defining functions for buttons in signin page
+                accesstoken = str(Tokens['AuthenticationResult']['AccessToken'])
+                response = cog.global_sign_out(
+                    AccessToken=accesstoken
+                )
+                return response
 
-        def signout():          # defining functions for buttons in signin page
-            accesstoken = str(Tokens['AuthenticationResult']['AccessToken'])
-            response = cog.global_sign_out(
-                AccessToken=accesstoken
-            )
-            print(response)
-            return response
+            def send():  # defining functions for buttons in signin page
+                try:
+                    this = t_sign_complaint.get("1.0", "end-1c")
+                    text = {"userid": e1_username.get(),
+                            "product": e_sign_product.get(),
+                            "complaint": this
+                            }
+                    id_token = str(Tokens['AuthenticationResult']['IdToken'])
+                    body = requests.put(put_url_c, json=text,
+                                        headers={'Authorization': f'Bearer {id_token}', 'Content-Type': 'application/json'})
+                    print(body)
+                finally:
+                    t_sign_complaint.delete('1.0', tk.END)
+                    t_sign_complaint.insert('1.0', 'Complaint sent')
+                    pass
+                return
 
-        def send():             # defining functions for buttons in signin page
-            this = t_sign_complaint.get("1.0","end-1c")
-            text = {"userid": e1_username.get(),
-                    "product": e_sign_product.get(),
-                    "complaint": this
-                    }
-            id_token = str(Tokens['AuthenticationResult']['IdToken'])
-            body = requests.put(put_url_c, json=text, headers={'Authorization': f'Bearer {id_token}', 'Content-Type':'application/json'})
-            return body
+            def retrieve():  #defining response retrieval for customer
+                e_sign_product.delete(0, tk.END)
+                t_sign_complaint.delete('1.0', tk.END)
 
-        def retrieve():                                             #defining response retrieval for customer
                 params = {"userid": e1_username.get()}
                 id_token = str(Tokens['AuthenticationResult']['IdToken'])
                 url = get_url_c + "single"
@@ -362,10 +416,14 @@ def signin():
                 comp = body.json()['Item']['complaint']
                 e_sign_product.insert('0', pro)
                 t_sign_complaint.insert('1.0', comp)
-                if content == None:
+
+                if content is None:
+                    t_sign_response.delete('1.0', tk.END)
                     t_sign_response.insert('1.0', 'No response yet')
                 else:
+                    t_sign_response.delete('1.0', tk.END)
                     t_sign_response.insert('1.0', content)
+                return
 
         b_sign_send = tk.Button(sign, text="Send", command=send)
         b_sign_send.grid(column=2, row=2)
@@ -386,7 +444,7 @@ def signin():
 #creating buttons on window_1
 Checkbutton1_a = tk.IntVar()
 b1_employee = tk.Checkbutton(text="Employee", variable=Checkbutton1_a)
-b1_employee.grid(column=0,  row=1)
+b1_employee.grid(column=0, row=1)
 
 Checkbutton1_b = tk.IntVar()
 b1_Customer = tk.Checkbutton(text="Customer", variable=Checkbutton1_b)
