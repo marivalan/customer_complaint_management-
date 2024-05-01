@@ -411,19 +411,17 @@ def signin():
                 body = requests.get(url, params=params,
                                     headers={'Authorization': f'Bearer {id_token}', 'Content-Type': 'application/json'})
                 print(body)
-                content = body.json()['Item']['reply']
                 pro = body.json()['Item']['product']
                 comp = body.json()['Item']['complaint']
                 e_sign_product.insert('0', pro)
                 t_sign_complaint.insert('1.0', comp)
-
-                if content is None:
-                    t_sign_response.delete('1.0', tk.END)
-                    t_sign_response.insert('1.0', 'No response yet')
-                else:
+                try:
+                    content = body.json()['Item']['reply']
                     t_sign_response.delete('1.0', tk.END)
                     t_sign_response.insert('1.0', content)
-                return
+                except Exception:
+                    t_sign_response.delete('1.0', tk.END)
+                    t_sign_response.insert('1.0', 'No response yet')
 
         b_sign_send = tk.Button(sign, text="Send", command=send)
         b_sign_send.grid(column=2, row=2)
