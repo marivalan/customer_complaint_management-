@@ -6,7 +6,7 @@ cog = boto3.client('cognito-idp', region_name='ap-south-1')
 
 root = tk.Tk()
 root.title("customer_compliant_management")
-root.geometry("450x435")
+root.geometry("320x320")
 
 #creating entries, labels and functions for window_1
 
@@ -42,7 +42,7 @@ def signup():
         # creating a new window and entries, lables
         reg = tk.Tk()
         reg.title("Register")
-        reg.geometry("450x435")
+        reg.geometry("380x380")
 
         l2_username = tk.Label(reg, text="User Name")
         l2_username.grid(column=0, row=1)
@@ -50,6 +50,8 @@ def signup():
         l2_mailid.grid(column=0, row=2)
         l2_password = tk.Label(reg, text="Password")
         l2_password.grid(column=0, row=4)
+        l2_info = tk.Label(reg, text="Password must contain at least one capital letter and one number")
+        l2_info.grid(column=0, row=5, columnspan=2)
         l2_otp = tk.Label(reg, text="OTP")
         l2_otp.grid(column=0, row=8)
         #entries
@@ -116,7 +118,7 @@ def signup():
         # creating a new window and entries, lables
         reg = tk.Tk()
         reg.title("Register")
-        reg.geometry("450x435")
+        reg.geometry("380x380")
 
         l2_username = tk.Label(reg, text="User Name")
         l2_username.grid(column=0, row=1)
@@ -124,6 +126,8 @@ def signup():
         l2_mailid.grid(column=0, row=2)
         l2_password = tk.Label(reg, text="Password")
         l2_password.grid(column=0, row=4)
+        l2_info = tk.Label(reg, text="Password must contain at least one capital letter and one number")
+        l2_info.grid(column=0, row=5, columnspan=2)
         l2_otp = tk.Label(reg, text="OTP")
         l2_otp.grid(column=0, row=8)
 
@@ -176,7 +180,7 @@ def signup():
                 l_confirmation = tk.Label(reg, text='Confirmed')
                 l_confirmation.grid(column=1, row=11)
             finally:
-                def signin():
+                def sigin():
                     clientid_c = customer_pool_Client_ID
                     authparameters_c = {
                         'USERNAME': e2_username.get(),
@@ -207,7 +211,7 @@ def signup():
                     )
                     return out
 
-                signin()
+                sigin()
                 Token = cred
                 store_user_data()
                 signout()
@@ -256,7 +260,7 @@ def signin():
             # creating an employee signin page
             sign = tk.Tk()
             sign.title("Sign In")
-            sign.geometry("450x435")
+            sign.geometry("400x435")
 
             l_sign_customer = tk.Label(sign, text="Customer Name")
             l_sign_customer.grid(column=0, row=1)
@@ -292,17 +296,21 @@ def signin():
             def send():  # defining functions for buttons in signin page
                 try:
                     this = t_sign_response.get("1.0", "end-1c")
-                    text = {"userid": e_sign_customer.get(),
-                            "reply": this
-                            }
-                    body = requests.put(put_url_e, json=text,
-                                        headers={'Authorization': f'Bearer {id_token}',
-                                                 'Content-Type': 'application/json'})
-                    print(body)
-                finally:
+                    if this == "Response sent" or not this:
+                        return
+                    else:
+                        text = {"userid": e_sign_customer.get(),
+                                "reply": this
+                                }
+                        body = requests.put(put_url_e, json=text,
+                                            headers={'Authorization': f'Bearer {id_token}',
+                                                     'Content-Type': 'application/json'})
+                        print(body)
+                        t_sign_response.delete('1.0', tk.END)
+                        t_sign_response.insert('1.0', 'Response sent')
+                except Exception:
                     t_sign_response.delete('1.0', tk.END)
-                    t_sign_response.insert('1.0', 'Response sent')
-                    pass
+                    t_sign_response.insert('1.0', 'Could not send response')
                 return
 
             def show():  # defining response retrieval for employee
@@ -336,14 +344,14 @@ def signin():
                 return
 
 
-        b_sign_show = tk.Button(sign, text="Show", command=show)
-        b_sign_show.grid(column=2, row=1)
-        b_sign_send = tk.Button(sign, text="Send", command=send)
-        b_sign_send.grid(column=2, row=5)
-        b_sign_signout = tk.Button(sign, text="Sign out", command=signout)
-        b_sign_signout.grid(column=1, row=7)
+            b_sign_show = tk.Button(sign, text="Show", command=show)
+            b_sign_show.grid(column=2, row=1)
+            b_sign_send = tk.Button(sign, text="Send", command=send)
+            b_sign_send.grid(column=2, row=5)
+            b_sign_signout = tk.Button(sign, text="Sign out", command=signout)
+            b_sign_signout.grid(column=1, row=7)
 
-        sign.mainloop()
+            sign.mainloop()
 
     elif var1 == 0 and var2 == 1:  #customer signin authflow
         try:
@@ -361,21 +369,21 @@ def signin():
             # creating a customer signin page
             sign = tk.Tk()
             sign.title("Sign In")
-            sign.geometry("450x435")
+            sign.geometry("350x435")
 
             l_sign_product = tk.Label(sign, text="Product")
             l_sign_product.grid(column=0, row=1)
             l_sign_complaint = tk.Label(sign, text="Complaint")
             l_sign_complaint.grid(column=0, row=2)
             l_sign_response = tk.Label(sign, text="Response")
-            l_sign_response.grid(column=0, row=3)
+            l_sign_response.grid(column=0, row=4)
 
             e_sign_product = tk.Entry(sign, width=35)
             e_sign_product.grid(column=1, row=1)
             t_sign_complaint = tk.Text(sign, height=10, width=26)
             t_sign_complaint.grid(column=1, row=2)
             t_sign_response = tk.Text(sign, height=5, width=26)
-            t_sign_response.grid(column=1, row=3)
+            t_sign_response.grid(column=1, row=4)
 
             def signout():  # defining functions for buttons in signin page
                 accesstoken = str(Tokens['AuthenticationResult']['AccessToken'])
@@ -386,19 +394,26 @@ def signin():
 
             def send():  # defining functions for buttons in signin page
                 try:
+                    thing = e_sign_product.get()
                     this = t_sign_complaint.get("1.0", "end-1c")
-                    text = {"userid": e1_username.get(),
-                            "product": e_sign_product.get(),
-                            "complaint": this
-                            }
-                    id_token = str(Tokens['AuthenticationResult']['IdToken'])
-                    body = requests.put(put_url_c, json=text,
-                                        headers={'Authorization': f'Bearer {id_token}', 'Content-Type': 'application/json'})
-                    print(body)
-                finally:
+                    if this == "Complaint sent" or not thing or not this:
+                        return
+                    else:
+                        text = {"userid": e1_username.get(),
+                                "product": thing,
+                                "complaint": this
+                                }
+                        id_token = str(Tokens['AuthenticationResult']['IdToken'])
+                        body = requests.put(put_url_c, json=text,
+                                            headers={'Authorization': f'Bearer {id_token}',
+                                                     'Content-Type': 'application/json'})
+
+                        print(body)
+                        t_sign_complaint.delete('1.0', tk.END)
+                        t_sign_complaint.insert('1.0', 'Complaint sent')
+                except Exception:
                     t_sign_complaint.delete('1.0', tk.END)
-                    t_sign_complaint.insert('1.0', 'Complaint sent')
-                    pass
+                    t_sign_complaint.insert('1.0', 'Could not send the complaint')
                 return
 
             def retrieve():  #defining response retrieval for customer
@@ -423,14 +438,14 @@ def signin():
                     t_sign_response.delete('1.0', tk.END)
                     t_sign_response.insert('1.0', 'No response yet')
 
-        b_sign_send = tk.Button(sign, text="Send", command=send)
-        b_sign_send.grid(column=2, row=2)
-        b_sign_signout = tk.Button(sign, text="Sign out", command=signout)
-        b_sign_signout.grid(column=1, row=4)
-        b_sign_retrieve = tk.Button(sign, text="retrieve", command=retrieve)
-        b_sign_retrieve.grid(column=2, row=3)
+            b_sign_send = tk.Button(sign, text="Send", command=send)
+            b_sign_send.grid(column=1, row=3)
+            b_sign_retrieve = tk.Button(sign, text="Retrieve", command=retrieve)
+            b_sign_retrieve.grid(column=1, row=5)
+            b_sign_signout = tk.Button(sign, text="Sign out", command=signout)
+            b_sign_signout.grid(column=1, row=7)
 
-        sign.mainloop()
+            sign.mainloop()
 
     else:
         warning_label = tk.Label(root, text="Select one of the above category")
