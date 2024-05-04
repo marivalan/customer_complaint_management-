@@ -6,21 +6,21 @@ cog = boto3.client('cognito-idp', region_name='ap-south-1')
 
 root = tk.Tk()
 root.title("customer_compliant_management")
-root.geometry("320x320")
+root.geometry("430x400")
 
 #creating entries, labels and functions for window_1
 
 l1_username = tk.Label(text="User Name")
-l1_username.grid(column=0, row=4)
+l1_username.grid(column=0, row=4, padx=(50,0), pady=(20, 0))
 l1_password = tk.Label(text="Password")
-l1_password.grid(column=0, row=5)
+l1_password.grid(column=0, row=5, padx=(50,0))
 l1_notice = tk.Label(text="Select user type")
 l1_notice.grid(column=0, row=0, columnspan=2)
 
 e1_username = tk.Entry(width=35)
-e1_username.grid(column=1, row=4)
+e1_username.grid(column=1, row=4, padx=(50, 40), pady=(20, 0))
 e1_password = tk.Entry(width=35)
-e1_password.grid(column=1, row=5)
+e1_password.grid(column=1, row=5,padx=(50, 40))
 
 employee_pool_Client_ID = '16aojtq6q5beh7ptto9rlhiir0'
 customer_pool_Client_ID = '5kv7v304h4ao62rf7h1euo71bv'
@@ -224,7 +224,7 @@ def signup():
         reg.mainloop()
     else:
         warning_label = tk.Label(root, text="Select one of the above category")
-        warning_label.grid(column=0, row=7, columnspan=2)
+        warning_label.grid(column=0, row=2, columnspan=2)
 
 
 def signin():
@@ -260,30 +260,30 @@ def signin():
             # creating an employee signin page
             sign = tk.Tk()
             sign.title("Sign In")
-            sign.geometry("400x435")
+            sign.geometry("430x480")
 
             l_sign_customer = tk.Label(sign, text="Customer Name")
-            l_sign_customer.grid(column=0, row=1)
+            l_sign_customer.grid(column=0, row=1, padx=(40,0), pady=(20, 0))
             l_sign_mailid = tk.Label(sign, text="Mail id")
-            l_sign_mailid.grid(column=0, row=2)
+            l_sign_mailid.grid(column=0, row=3, padx=(40,0))
             l_sign_product = tk.Label(sign, text="Product")
-            l_sign_product.grid(column=0, row=3)
+            l_sign_product.grid(column=0, row=4, padx=(40,0))
             l_sign_complaint = tk.Label(sign, text="Complaint")
-            l_sign_complaint.grid(column=0, row=4)
+            l_sign_complaint.grid(column=0, row=5, padx=(40,0))
             l_sign_response = tk.Label(sign, text="Response")
-            l_sign_response.grid(column=0, row=5)
+            l_sign_response.grid(column=0, row=6, padx=(40,0))
 
             e_sign_customer = tk.Entry(sign, width=35)
-            e_sign_customer.grid(column=1, row=1)
+            e_sign_customer.grid(column=1, row=1, padx=(30,0), pady=(20, 0))
             e_sign_mailid = tk.Entry(sign, width=35)
-            e_sign_mailid.grid(column=1, row=2)
+            e_sign_mailid.grid(column=1, row=3, padx=(30,0))
             e_sign_product = tk.Entry(sign, width=35)
-            e_sign_product.grid(column=1, row=3)
+            e_sign_product.grid(column=1, row=4, padx=(30,0))
 
             t_sign_complaint = tk.Text(sign, height=10, width=26)
-            t_sign_complaint.grid(column=1, row=4)
+            t_sign_complaint.grid(column=1, row=5, padx=(30,0))
             t_sign_response = tk.Text(sign, height=5, width=26)
-            t_sign_response.grid(column=1, row=5)
+            t_sign_response.grid(column=1, row=6, padx=(30,0))
 
             def signout():  # defining functions for buttons in signin page
                 accesstoken = str(Tokens['AuthenticationResult']['AccessToken'])
@@ -296,7 +296,7 @@ def signin():
             def send():  # defining functions for buttons in signin page
                 try:
                     this = t_sign_response.get("1.0", "end-1c")
-                    if this == "Response sent" or not this:
+                    if this == "Response sent" or not this or this == "Could not fetch data" or this == "Could not send response":
                         return
                     else:
                         text = {"userid": e_sign_customer.get(),
@@ -339,17 +339,57 @@ def signin():
                         t_sign_complaint.insert('1.0', content)
                         pass
                 except Exception:
-                    feedback_label = tk.Label(sign, text="Could not fetch data")
-                    feedback_label.grid(column=0, row=9, columnspan=2)
+                    t_sign_response.insert('1.0', "Could not fetch data")
                 return
 
+            def list():
+                allcustomers = tk.Tk()
+                allcustomers.title("Customers data")
+                allcustomers.geometry("430x480")
+
+                id_token = str(Tokens['AuthenticationResult']['IdToken'])
+                url = get_url_e + "all"
+                body = requests.get(url,
+                                    headers={'Authorization': f'Bearer {id_token}',
+                                             'Content-Type': 'application/json'})
+                print(body)
+                data = body.json()['Items']
+                print(data)
+
+                def label(username, complaint, product, x):
+                    l2_username = tk.Label(allcustomers, text=username)
+                    l2_username.grid(column=1, row=x)
+                    l2_username = tk.Label(allcustomers, text=complaint)
+                    l2_username.grid(column=2, row=x)
+                    l2_username = tk.Label(allcustomers, text=product)
+                    l2_username.grid(column=3, row=x)
+                    return
+
+                x = int(0)
+                for i in data:
+                    x += 1
+                    u_name = i['userid']
+                    comp = i['complaint']
+                    pro = i['product']
+                    label(u_name, comp, pro, x)
+                l2_username = tk.Label(allcustomers, text="Customer Name")
+                l2_username.grid(column=1, row=0)
+                l2_username = tk.Label(allcustomers, text="Complaint")
+                l2_username.grid(column=2, row=0)
+                l2_username = tk.Label(allcustomers, text="Product")
+                l2_username.grid(column=3, row=0)
+
+                allcustomers.mainloop()
+                return
 
             b_sign_show = tk.Button(sign, text="Show", command=show)
-            b_sign_show.grid(column=2, row=1)
+            b_sign_show.grid(column=1, row=2)
             b_sign_send = tk.Button(sign, text="Send", command=send)
-            b_sign_send.grid(column=2, row=5)
+            b_sign_send.grid(column=1, row=7)
             b_sign_signout = tk.Button(sign, text="Sign out", command=signout)
-            b_sign_signout.grid(column=1, row=7)
+            b_sign_signout.grid(column=0, row=8, padx=(80,0), pady=(30, 20))
+            b_sign_list = tk.Button(sign, text="Customers' list", command=list)
+            b_sign_list.grid(column=1, row=8, padx=(40,0), pady=(30, 20))
 
             sign.mainloop()
 
@@ -372,18 +412,18 @@ def signin():
             sign.geometry("350x435")
 
             l_sign_product = tk.Label(sign, text="Product")
-            l_sign_product.grid(column=0, row=1)
+            l_sign_product.grid(column=0, row=2, padx=(30,0))
             l_sign_complaint = tk.Label(sign, text="Complaint")
-            l_sign_complaint.grid(column=0, row=2)
+            l_sign_complaint.grid(column=0, row=3, padx=(30,0))
             l_sign_response = tk.Label(sign, text="Response")
-            l_sign_response.grid(column=0, row=4)
+            l_sign_response.grid(column=0, row=5, padx=(30,0))
 
             e_sign_product = tk.Entry(sign, width=35)
-            e_sign_product.grid(column=1, row=1)
+            e_sign_product.grid(column=1, row=2)
             t_sign_complaint = tk.Text(sign, height=10, width=26)
-            t_sign_complaint.grid(column=1, row=2)
+            t_sign_complaint.grid(column=1, row=3)
             t_sign_response = tk.Text(sign, height=5, width=26)
-            t_sign_response.grid(column=1, row=4)
+            t_sign_response.grid(column=1, row=5)
 
             def signout():  # defining functions for buttons in signin page
                 accesstoken = str(Tokens['AuthenticationResult']['AccessToken'])
@@ -439,33 +479,32 @@ def signin():
                     t_sign_response.insert('1.0', 'No response yet')
 
             b_sign_send = tk.Button(sign, text="Send", command=send)
-            b_sign_send.grid(column=1, row=3)
-            b_sign_retrieve = tk.Button(sign, text="Retrieve", command=retrieve)
-            b_sign_retrieve.grid(column=1, row=5)
+            b_sign_send.grid(column=1, row=4)
+            b_sign_retrieve = tk.Button(sign, text="Retrieve my data", command=retrieve)
+            b_sign_retrieve.grid(column=1, row=1)
             b_sign_signout = tk.Button(sign, text="Sign out", command=signout)
-            b_sign_signout.grid(column=1, row=7)
+            b_sign_signout.grid(column=1, row=7, pady=(40,0))
 
             sign.mainloop()
 
     else:
         warning_label = tk.Label(root, text="Select one of the above category")
-        warning_label.grid(column=0, row=6, columnspan=2)
-
+        warning_label.grid(column=0, row=2, columnspan=2)
     return
 
 
 #creating buttons on window_1
 Checkbutton1_a = tk.IntVar()
 b1_employee = tk.Checkbutton(text="Employee", variable=Checkbutton1_a)
-b1_employee.grid(column=0, row=1)
+b1_employee.grid(column=0, row=1, padx=(50,0), pady=(10, 0))
 
 Checkbutton1_b = tk.IntVar()
 b1_Customer = tk.Checkbutton(text="Customer", variable=Checkbutton1_b)
-b1_Customer.grid(column=1, row=1)
+b1_Customer.grid(column=1, row=1, padx=(30,0), pady=(10, 0))
 
 b1_register = tk.Button(text="Sign up", command=signup)
-b1_register.grid(column=1, row=8, pady=40)
+b1_register.grid(column=1, row=8, padx=(30,0), pady=(30, 50))
 b1_signin = tk.Button(text="Sign in", command=signin)
-b1_signin.grid(column=0, row=8)
+b1_signin.grid(column=0, row=8, padx=(50,0), pady=(30, 50))
 
 root.mainloop()
