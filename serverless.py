@@ -209,6 +209,8 @@ def signup():
                     out = cog.global_sign_out(
                         AccessToken=accesstoken
                     )
+                    reg.destroy()
+                    root.destroy()
                     return out
 
                 sigin()
@@ -290,7 +292,8 @@ def signin():
                 response = cog.global_sign_out(
                     AccessToken=accesstoken
                 )
-                print(response)
+                sign.destroy()
+                root.destroy()
                 return response
 
             def send():  # defining functions for buttons in signin page
@@ -331,12 +334,18 @@ def signin():
                     content = body.json()['Item']['complaint']
                     pro = body.json()['Item']['product']
                     mail = body.json()['Item']['mailid']
+                    reply = body.json()['Item']['reply']
                     e_sign_product.insert("0", pro)
                     e_sign_mailid.insert("0", mail)
                     if content is None:
                         t_sign_complaint.insert('1.0', 'No complaint')
                     else:
                         t_sign_complaint.insert('1.0', content)
+                        pass
+                    if reply is None:
+                        t_sign_response.insert('1.0', 'No response from your side yet')
+                    else:
+                        t_sign_response.insert('1.0', reply)
                         pass
                 except Exception:
                     t_sign_response.insert('1.0', "Could not fetch data")
@@ -357,12 +366,12 @@ def signin():
                 print(data)
 
                 def label(username, complaint, product, x):
-                    l2_username = tk.Label(allcustomers, text=username)
-                    l2_username.grid(column=1, row=x)
-                    l2_username = tk.Label(allcustomers, text=complaint)
-                    l2_username.grid(column=2, row=x)
-                    l2_username = tk.Label(allcustomers, text=product)
-                    l2_username.grid(column=3, row=x)
+                    l_username = tk.Label(allcustomers, text=username)
+                    l_username.grid(column=1, row=x)
+                    l_username = tk.Label(allcustomers, text=product)
+                    l_username.grid(column=2, row=x)
+                    l_username = tk.Label(allcustomers, text=complaint)
+                    l_username.grid(column=3, row=x)
                     return
 
                 x = int(0)
@@ -372,12 +381,12 @@ def signin():
                     comp = i['complaint']
                     pro = i['product']
                     label(u_name, comp, pro, x)
-                l2_username = tk.Label(allcustomers, text="Customer Name")
-                l2_username.grid(column=1, row=0)
-                l2_username = tk.Label(allcustomers, text="Complaint")
-                l2_username.grid(column=2, row=0)
-                l2_username = tk.Label(allcustomers, text="Product")
-                l2_username.grid(column=3, row=0)
+                l_username = tk.Label(allcustomers, text="Customer Name")
+                l_username.grid(column=1, row=0, padx=(20, 0))
+                l_username = tk.Label(allcustomers, text="Product")
+                l_username.grid(column=2, row=0, padx=(20, 0))
+                l_username = tk.Label(allcustomers, text="Complaint")
+                l_username.grid(column=3, row=0, padx=(20, 0))
 
                 allcustomers.mainloop()
                 return
@@ -387,9 +396,9 @@ def signin():
             b_sign_send = tk.Button(sign, text="Send", command=send)
             b_sign_send.grid(column=1, row=7)
             b_sign_signout = tk.Button(sign, text="Sign out", command=signout)
-            b_sign_signout.grid(column=0, row=8, padx=(80,0), pady=(30, 20))
+            b_sign_signout.grid(column=0, row=8, padx=(80, 0), pady=(30, 20))
             b_sign_list = tk.Button(sign, text="Customers' list", command=list)
-            b_sign_list.grid(column=1, row=8, padx=(40,0), pady=(30, 20))
+            b_sign_list.grid(column=1, row=8, padx=(40, 0), pady=(30, 20))
 
             sign.mainloop()
 
