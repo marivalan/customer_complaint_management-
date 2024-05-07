@@ -1,0 +1,37 @@
+import json
+import boto3
+
+ddb = boto3.resource('dynamodb')
+table= ddb.Table('CCM')
+
+
+def lambda_handler(event, context):
+    Userid = event.get('userid')
+    Product = event.get('product')
+    Complaint= event.get('complaint')
+    Reply = event.get('reply')
+    
+    if Reply is None:
+        data = table.update_item(
+            Key={
+                'userid': Userid
+                },
+            UpdateExpression='SET product = :p, complaint = :c',
+            ExpressionAttributeValues={
+                ':p': Product,
+                ':c' : Complaint
+                }
+        )
+        return data
+    else:
+        data = table.update_item(
+            Key={
+                'userid': Userid
+                },
+            UpdateExpression='SET reply = :r',
+            ExpressionAttributeValues={
+                ':r': Reply
+                }
+        )
+        return data
+    return
