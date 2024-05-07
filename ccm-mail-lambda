@@ -1,0 +1,44 @@
+import json
+import boto3
+
+ses= boto3.client('ses')
+
+def lambda_handler(event, context):
+    print(event)
+    data4=str(event['Records'][0]['eventName'])
+    print(data4)
+    
+    if data4 == 'MODIFY':
+        data3=str(event['Records'][0]['dynamodb']['NewImage']['mailid']['S'])
+        comment = event['Records'][0]['dynamodb']['NewImage']
+        if 'reply' not in comment:
+            return
+        else:
+            data2=str(event['Records'][0]['dynamodb']['NewImage']['reply']['S'])
+            response = ses.send_email(
+                Source='ssmarivalan@gmail.com',
+                Destination={
+                    'ToAddresses' : [data3]
+                },
+                Message={
+                    'Subject':{
+                        'Data': 'Response for the complaint you have registered'
+                    },
+                    'Body':{
+                        'Text': {
+                            'Data': data2
+                        }
+                    }
+                }
+            )
+            print(response)
+    elif data4 == 'REMOVE':
+        return
+    elif data4 == 'INSERT':
+        data3=str(event['Records'][0]['dynamodb']['NewImage']['mailid']['S'])
+        response = ses.verify_email_identity(
+                EmailAddress = data3
+        )
+        print(response)
+        return
+    
