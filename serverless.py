@@ -22,16 +22,16 @@ e1_username.grid(column=1, row=4, padx=(50, 40), pady=(20, 0))
 e1_password = tk.Entry(width=35)
 e1_password.grid(column=1, row=5,padx=(50, 40))
 
-employee_pool_Client_ID = '16aojtq6q5beh7ptto9rlhiir0'
-customer_pool_Client_ID = '5kv7v304h4ao62rf7h1euo71bv'
+employee_pool_Client_ID = ''
+customer_pool_Client_ID = ''
 
-post_url_c = 'https://d0el873e53.execute-api.ap-south-1.amazonaws.com/CCM/'
-put_url_c = 'https://d0el873e53.execute-api.ap-south-1.amazonaws.com/CCM/update'
-get_url_c = 'https://d0el873e53.execute-api.ap-south-1.amazonaws.com/CCM/'
+post_url_c = ''
+put_url_c = ''
+get_url_c = ''
 
-post_url_e = 'https://zbn890lj60.execute-api.ap-south-1.amazonaws.com/CCM-E/CCM-E'
-put_url_e = 'https://zbn890lj60.execute-api.ap-south-1.amazonaws.com/CCM-E/CCM-E/update'
-get_url_e = 'https://zbn890lj60.execute-api.ap-south-1.amazonaws.com/CCM-E/CCM-E/'
+post_url_e = ''
+put_url_e = ''
+get_url_e = ''
 
 
 def signup():
@@ -159,7 +159,7 @@ def signup():
                 l_confirmation.grid(column=1, row=10)
                 return None
             else:
-                l_confirmation = tk.Label(reg, text='Awaiting confirmation')
+                l_confirmation = tk.Label(reg, text='OTP has been sent to your mail, Awaiting confirmation')
                 l_confirmation.grid(column=1, row=10)
             finally:
                 pass
@@ -177,7 +177,7 @@ def signup():
                 l_confirmation.grid(column=1, row=11)
                 return None
             else:
-                l_confirmation = tk.Label(reg, text='Confirmed')
+                l_confirmation = tk.Label(reg, text='Confirmed! Authorize us in your mail to receive updates ')
                 l_confirmation.grid(column=1, row=11)
             finally:
                 def sigin():
@@ -209,8 +209,6 @@ def signup():
                     out = cog.global_sign_out(
                         AccessToken=accesstoken
                     )
-                    reg.destroy()
-                    root.destroy()
                     return out
 
                 sigin()
@@ -334,7 +332,6 @@ def signin():
                     content = body.json()['Item']['complaint']
                     pro = body.json()['Item']['product']
                     mail = body.json()['Item']['mailid']
-                    reply = body.json()['Item']['reply']
                     e_sign_product.insert("0", pro)
                     e_sign_mailid.insert("0", mail)
                     if content is None:
@@ -342,11 +339,12 @@ def signin():
                     else:
                         t_sign_complaint.insert('1.0', content)
                         pass
-                    if reply is None:
-                        t_sign_response.insert('1.0', 'No response from your side yet')
-                    else:
+                    try:
+                        reply = body.json()['Item']['reply']
                         t_sign_response.insert('1.0', reply)
-                        pass
+                    except Exception:
+                        t_sign_response.insert('1.0', 'No response from your side yet')
+                        return
                 except Exception:
                     t_sign_response.insert('1.0', "Could not fetch data")
                 return
